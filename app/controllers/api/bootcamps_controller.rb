@@ -1,5 +1,5 @@
 class Api::BootcampsController < ApplicationController
-  before_action :set_bootcamp, except: [:create, :index]
+  before_action :set_bootcamp, except: [:index, :create]
 
   def index
     render json: Bootcamp.all
@@ -14,7 +14,7 @@ class Api::BootcampsController < ApplicationController
     if bootcamp.save
       render json: bootcamp
     else
-      render json: json_error(bootcamp)
+      json_error(bootcamp)
     end
   end
 
@@ -31,9 +31,8 @@ class Api::BootcampsController < ApplicationController
   end
 
   private
-
     def set_bootcamp
-      @bootcamp = Bootcamp.find(prarams[:id])
+      @bootcamp = Bootcamp.find(params[:id])
     end
 
     def bootcamp_params

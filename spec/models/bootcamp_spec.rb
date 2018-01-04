@@ -29,7 +29,6 @@ RSpec.describe Bootcamp, type: :model do
     context 'presence of validations' do
       it { should validate_presence_of(:name) }
       it { should validate_presence_of(:year_founded) }
-      it { should validate_presence_of(:languages) }
       it { should validate_presence_of(:full_time_tuition_cost) }
       it { should validate_presence_of(:part_time_tuition_cost) }
     end
@@ -48,21 +47,22 @@ RSpec.describe Bootcamp, type: :model do
 
   describe 'class methods / scopes' do
     before(:each) do
-      @bootcamp_1 = FactoryBot.create(:bootcamp,
-         name: 'NY Code Acadamy',
-         full_time_tuition_cost: 10000,
-         part_time_tuition_cost: 7000
-       )
+      @bootcamp_1 = FactoryBot.create(
+        :bootcamp,
+        name: 'NY Code Academy',
+        full_time_tuition_cost: 11000,
+        part_time_tuition_cost: 7000
+      )
       @bootcamp_2 = FactoryBot.create(:bootcamp, name: 'Iron Yard')
-      @bootcamp_3 = FactoryBot.create(:bootcamp,
-         name: 'DevPoint Labs',
-         full_time_tuition_cost: 20000,
-         part_time_tuition_cost: 3000
-       )
+      @bootcamp_3 = FactoryBot.create(
+        :bootcamp,
+        name: 'DevPoint Labs',
+        full_time_tuition_cost: 20000,
+        part_time_tuition_cost: 3000
+      )
     end
 
     it 'returns bootcamps ordered by name' do
-      #can override what factory bot has
       bootcamps = Bootcamp.all.by_name
       expect(bootcamps.first).to eq(@bootcamp_3)
       expect(bootcamps[1]).to eq(@bootcamp_2)
@@ -74,10 +74,9 @@ RSpec.describe Bootcamp, type: :model do
       expect(bootcamps.first).to eq(@bootcamp_3)
       expect(bootcamps[1]).to eq(@bootcamp_1)
       expect(bootcamps.last).to eq(@bootcamp_2)
-
     end
 
-    it 'returns bootcamps ordered by part time tuition cost' do
+    it 'returns bootcamps ordered by part time tuition cost desc' do
       bootcamps = Bootcamp.all.by_part_time_tuition_cost
       expect(bootcamps.first).to eq(@bootcamp_1)
       expect(bootcamps[1]).to eq(@bootcamp_2)

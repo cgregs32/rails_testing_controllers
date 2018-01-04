@@ -14,7 +14,7 @@
 #
 
 class Bootcamp < ApplicationRecord
-  validates_presence_of :name, :year_founded, :full_time_tuition_cost, :part_time_tuition_cost, :active, :languages
+  validates_presence_of :name, :year_founded, :full_time_tuition_cost, :part_time_tuition_cost
   validates_uniqueness_of :name
   validates_inclusion_of :year_founded, in: (2000..Date.today.year).to_a
 

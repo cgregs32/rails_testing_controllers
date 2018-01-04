@@ -7,33 +7,121 @@ RSpec.describe Api::BootcampsController, type: :controller do
       get :index
       expect(response).to have_http_status(:success)
     end
+
+    it 'returns the correct JSON for all bootcamps' do
+      bootcamp_count = 10
+      FactoryBot.create_list(:bootcamp, bootcamp_count)
+      get :index
+      parsed = JSON.parse(response.body)
+      expect(parsed.count).to eq(bootcamp_count)
+    end
   end
 
   describe "GET #show" do
+    before(:each) do
+      @bootcamp = FactoryBot.create(:bootcamp)
+      get :show, params: { id: @bootcamp.id }
+    end
+
     it "returns http success" do
-      get :show
       expect(response).to have_http_status(:success)
+    end
+
+    it 'returns the right bootcamp JSON' do
+      parsed = JSON.parse(response.body)
+      expect(parsed['id']).to eq(@bootcamp.id)
     end
   end
 
-  describe "GET #create" do
-    it "returns http success" do
-      get :create
-      expect(response).to have_http_status(:success)
+  describe "POST #create" do
+    context 'with valid params' do
+      bootcamp_name = 'DevPoint Labs'
+
+      let(:valid_params) {
+        { "bootcamp" =>
+          {
+            "name" => bootcamp_name,
+            "year_founded" => 2003,
+            "full_time_tuition_cost" => 10000,
+            "part_time_tuition_cost" => 7000
+          }
+        }
+      }
+
+      before(:each) do
+        post :create, params: valid_params
+      end
+
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'returns the created bootcamps JSON' do
+        parsed = JSON.parse(response.body)
+        binding.pry
+        expect(parsed['name']).to eq(bootcamp_name)
+      end
+    end
+
+    context 'with invalid params' do
+      let(:invalid_params) {
+        { "bootcamp" =>
+          {
+            "year_founded" => 2003,
+            "full_time_tuition_cost" => 10000,
+            "part_time_tuition_cost" => 7000
+          }
+        }
+      }
+
+      it 'fails to create with invalid params' do
+        post :create, params: invalid_params
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)['errors']).to eq("Name can't be blank")
+        expect(Bootcamp.count).to eq(0)
+      end
     end
   end
 
-  describe "GET #update" do
-    it "returns http success" do
-      get :update
-      expect(response).to have_http_status(:success)
+  describe "PUT #update" do
+    before(:each) do
+      @bootcamp = FactoryBot.create(:bootcamp)
+    end
+
+    context 'with valid params' do
+      let(:valid_params) { { name: 'Iron Yard' } }
+
+      it "returns http success" do
+        put :update, params: { id: @bootcamp.id, bootcamp: valid_params }
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'successfully updates the bootcamp' do
+        put :update, params: { id: @bootcamp.id, bootcamp: valid_params }
+        parsed = JSON.parse(response.body)
+        expect(parsed['name']).to eq(valid_params[:name])
+      end
+    end
+
+    context 'with invalid params' do
+      it 'fails to update bootcamp' do
+        put :update, params: { id: @bootcamp.id, bootcamp: { name: '' } }
+        parsed = JSON.parse(response.body)
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed['errors']).to eq("Name can't be blank")
+        @bootcamp.reload
+        expect(@bootcamp.name).to_not eq('')
+      end
     end
   end
 
-  describe "GET #destroy" do
-    it "returns http success" do
-      get :destroy
+  describe "DELETE #destroy" do
+    it "successfully deletes a bootcamp" do
+      bootcamp = FactoryBot.create(:bootcamp)
+      expect(Bootcamp.count).to eq(1)
+      delete :destroy, params: { id: bootcamp.id }
       expect(response).to have_http_status(:success)
+      expect(Bootcamp.count).to eq(0)
     end
   end
 
